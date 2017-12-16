@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "758915062977",
+    "firebase_url": "https://facerecognition-79206.firebaseio.com",
+    "project_id": "facerecognition-79206",
+    "storage_bucket": "facerecognition-79206.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758915062977:android:fb04d1331d0ff70c",
+        "android_client_info": {
+          "package_name": "com.example.saihe.facerecognition"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "758915062977-08dvvdi9qpjdf6hh7ajeaomali8o9u52.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.saihe.facerecognition",
+            "certificate_hash": "9886b62e3bbd1222bd1e90defbf94b7f7cb78d8a"
+          }
+        },
+        {
+          "client_id": "758915062977-qk7gm12l29fia0t4ngejiamfl5ihpjoi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVyi0fgnCeJyYTX5_2-HjMsrefYACRTag"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "758915062977-qk7gm12l29fia0t4ngejiamfl5ihpjoi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
