@@ -10,12 +10,13 @@
 
 
         <!-- Capture picture button -->
-        <Button
-            android:id="@+id/btnCapturePicture"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="CAMERA"
-            android:layout_marginBottom="10dp"/>
+    <Button
+        android:id="@+id/btnCapturePicture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="CAMERA"
+        />
 
 
     <LinearLayout
@@ -38,7 +39,7 @@
             android:id="@+id/imgPreview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
+             />
 
        </LinearLayout>
 

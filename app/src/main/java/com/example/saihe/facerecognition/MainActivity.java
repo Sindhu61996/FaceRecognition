@@ -1,10 +1,12 @@
 package com.example.saihe.facerecognition;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
@@ -21,19 +24,35 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 public class MainActivity extends Activity {
 
-    // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     public static final int MEDIA_TYPE_IMAGE = 1;
+    // Creating StorageReference and DatabaseReference object.
+    StorageReference storageReference;
+  //  DatabaseReference databaseReference;
 
-    // directory name to store captured images and videos
-    private static final String IMAGE_DIRECTORY_NAME = "Hello Camera";
+    // Image request code for onActivityResult() .
+    int Image_Request_Code = 7;
 
-    private Uri fileUri; // file url to store image/video
+    ProgressDialog progressDialog ;
+
+
+    //Directory name to store the photos
+    private static final String IMAGE_DIRECTORY_NAME = "Face Recognition";
+
+    private Uri fileUri;
 
     private ImageView imgPreview;
     private Button btnCapturePicture;
+    private int CAMERA_REQUEST_CODE = 100;
+    private String mCurrentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,36 +62,38 @@ public class MainActivity extends Activity {
         imgPreview = (ImageView) findViewById(R.id.imgPreview);
         btnCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
 
-        /**
-         * Capture image button click event
-         */
+        storageReference = FirebaseStorage.getInstance().getReference();
+       // databaseReference = FirebaseDatabase.getInstance().getReference(Database_Path);
+         // Captures an image on button click event
         btnCapturePicture.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                // capture picture
+                // captures a picture
                 captureImage();
+                //Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                //startActivityForResult(i,CAMERA_REQUEST_CODE);
             }
         });
 
 
-        // Checking camera availability
+        // Checks for the availability of a camera
         if (!isDeviceSupportCamera()) {
             Toast.makeText(getApplicationContext(),
-                    "Sorry! Your device doesn't support camera",
+                    "Oops! Your device doesn't support camera",
                     Toast.LENGTH_LONG).show();
-            // will close the app if the device does't have camera
+            //  closes the app if the device does't have camera
             finish();
         }
+
     }
 
-    /**
-     * Checking device has camera hardware or not
-     * */
+    //Checks the device has camera hardware or not
+
     private boolean isDeviceSupportCamera() {
         if (getApplicationContext().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_CAMERA)) {
-            // this device has a camera
+            // the device has a camera
             return true;
         } else {
             // no camera on this device
@@ -92,6 +113,9 @@ public class MainActivity extends Activity {
 
         // start the image capture Intent
         startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+
+       // Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
+
     }
 
     /**
@@ -102,8 +126,7 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // save file url in bundle as it will be null on scren orientation
-        // changes
+        // save file url in bundle as it will be null on screen orientation changes
         outState.putParcelable("file_uri", fileUri);
     }
 
@@ -126,7 +149,30 @@ public class MainActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 // successfully captured the image
                 // display it in image view
+
                 previewCapturedImage();
+
+                //Uri file = Uri.fromFile(fileUri.getPath());
+
+                StorageReference riversRef = storageReference.child("images/r.jpg");
+                Toast.makeText(getApplicationContext(),"In Capture"+fileUri.toString()  ,Toast.LENGTH_LONG).show();
+                riversRef.putFile(fileUri)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                // Get a URL to the uploaded content
+                                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                                Toast.makeText(getApplicationContext(),"Uploading Successful",Toast.LENGTH_SHORT);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                Toast.makeText(getApplicationContext(),"Uploading Unsuccessful",Toast.LENGTH_SHORT);
+                                // ...
+                            }
+                        });
             } else if (resultCode == RESULT_CANCELED) {
                 // user cancelled Image capture
                 Toast.makeText(getApplicationContext(),
@@ -139,6 +185,8 @@ public class MainActivity extends Activity {
                         .show();
             }
         }
+
+
     }
 
     /**
@@ -156,8 +204,7 @@ public class MainActivity extends Activity {
             // images
             options.inSampleSize = 8;
 
-            final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath(),
-                    options);
+            final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath(),options);
 
             imgPreview.setImageBitmap(bitmap);
         } catch (NullPointerException e) {
@@ -171,10 +218,11 @@ public class MainActivity extends Activity {
      * */
 
     /**
-     * Creating file uri to store image/video
+     * Creating file uri to store image
      */
     public Uri getOutputMediaFileUri(int type) {
         File f = getOutputMediaFile(type);
+        Log.d("File",f.getAbsolutePath());
         if(f != null)
             return Uri.fromFile(f);
         else{
@@ -184,7 +232,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * returning image / video
+     * returning image
      */
     private static File getOutputMediaFile(int type) {
 
@@ -209,7 +257,9 @@ public class MainActivity extends Activity {
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + ".jpg");
+                    + "img_" + timeStamp + ".jpg");
+
+
         } else {
             return null;
         }
