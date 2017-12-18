@@ -3,8 +3,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
-
+import java.util.Map;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -18,37 +19,32 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.widget.VideoView;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity {
 
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     public static final int MEDIA_TYPE_IMAGE = 1;
-    // Creating StorageReference and DatabaseReference object.
+    public DocumentReference mDocRef= FirebaseFirestore.getInstance().document("sample/location");
+    // Creating StorageReference
     StorageReference storageReference;
-  //  DatabaseReference databaseReference;
-
     // Image request code for onActivityResult() .
     int Image_Request_Code = 7;
-
     ProgressDialog progressDialog ;
-
-
     //Directory name to store the photos
     private static final String IMAGE_DIRECTORY_NAME = "Face Recognition";
-
     private Uri fileUri;
-
     private ImageView imgPreview;
     private Button btnCapturePicture;
     private int CAMERA_REQUEST_CODE = 100;
@@ -106,6 +102,10 @@ public class MainActivity extends Activity {
      */
     private void captureImage() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //by default it sets to a front camera
+        intent.putExtra("android.intent.extras.CAMERA_FACING", android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT);
+        intent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
+        intent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
 
         fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
 
@@ -149,13 +149,16 @@ public class MainActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 // successfully captured the image
                 // display it in image view
-
                 previewCapturedImage();
 
                 //Uri file = Uri.fromFile(fileUri.getPath());
+                File f=new File(fileUri.getPath());
+                String fname="images/"+f.getName();
 
-                StorageReference riversRef = storageReference.child("images/r.jpg");
-                Toast.makeText(getApplicationContext(),"In Capture"+fileUri.toString()  ,Toast.LENGTH_LONG).show();
+                StorageReference riversRef = storageReference.child(fname);
+                Map<String,String>dataToSave =new HashMap<String,String>();
+               dataToSave.put("location","fname");
+                Toast.makeText(getApplicationContext(),"In Capture"+fname  ,Toast.LENGTH_LONG).show();
                 riversRef.putFile(fileUri)
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
@@ -196,30 +199,19 @@ public class MainActivity extends Activity {
         try {
 
             imgPreview.setVisibility(View.VISIBLE);
-
             // bimatp factory
             BitmapFactory.Options options = new BitmapFactory.Options();
 
             // downsizing image as it throws OutOfMemory Exception for larger
             // images
-            options.inSampleSize = 8;
-
+            options.inSampleSize = 4;
             final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath(),options);
-
             imgPreview.setImageBitmap(bitmap);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
-
-
-    /**
-     * ------------ Helper Methods ----------------------
-     * */
-
-    /**
-     * Creating file uri to store image
-     */
+    //Creating file uri to store image
     public Uri getOutputMediaFileUri(int type) {
         File f = getOutputMediaFile(type);
         Log.d("File",f.getAbsolutePath());
@@ -231,9 +223,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    /**
-     * returning image
-     */
+    //returning image
     private static File getOutputMediaFile(int type) {
 
         // External sdcard location
