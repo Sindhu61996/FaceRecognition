@@ -33,9 +33,9 @@ import com.google.firebase.storage.UploadTask;
 import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity {
-
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     public static final int MEDIA_TYPE_IMAGE = 1;
+    //creating firestore database reference
     public DocumentReference mDocRef= FirebaseFirestore.getInstance().document("sample/location");
     // Creating StorageReference
     StorageReference storageReference;
@@ -54,12 +54,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         imgPreview = (ImageView) findViewById(R.id.imgPreview);
         btnCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
-
         storageReference = FirebaseStorage.getInstance().getReference();
-       // databaseReference = FirebaseDatabase.getInstance().getReference(Database_Path);
          // Captures an image on button click event
         btnCapturePicture.setOnClickListener(new View.OnClickListener() {
 
@@ -71,8 +68,6 @@ public class MainActivity extends Activity {
                 //startActivityForResult(i,CAMERA_REQUEST_CODE);
             }
         });
-
-
         // Checks for the availability of a camera
         if (!isDeviceSupportCamera()) {
             Toast.makeText(getApplicationContext(),
@@ -104,15 +99,10 @@ public class MainActivity extends Activity {
         intent.putExtra("android.intent.extras.CAMERA_FACING", android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT);
         intent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
         intent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
-
         fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-
         // start the image capture Intent
         startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
-
-       // Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
 
     }
     @Override
@@ -130,24 +120,16 @@ public class MainActivity extends Activity {
         // get the file url
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
-
-
-    /**
-     * Receiving activity result method will be called after closing the camera
-     * */
+    //Receiving activity result method will be called after closing the camera
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // if the result is capturing Image
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 // successfully captured the image
-                // display it in image view
                 previewCapturedImage();
-
-                //Uri file = Uri.fromFile(fileUri.getPath());
                 File f=new File(fileUri.getPath());
                 String fname="images/"+f.getName();
-
                 StorageReference riversRef = storageReference.child(fname);
                 Map<String,String>dataToSave =new HashMap<String,String>();
                dataToSave.put("location","fname");
@@ -228,7 +210,6 @@ public class MainActivity extends Activity {
                 return null;
             }
         }
-
         // Create a media file name
         String timeStamp = new SimpleDateFormat( "yyyyMMdd_HHmmss",
                 Locale.getDefault()).format(new Date());
