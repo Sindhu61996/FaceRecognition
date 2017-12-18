@@ -83,9 +83,7 @@ public class MainActivity extends Activity {
         }
 
     }
-
     //Checks the device has camera hardware or not
-
     private boolean isDeviceSupportCamera() {
         if (getApplicationContext().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_CAMERA)) {
@@ -184,10 +182,8 @@ public class MainActivity extends Activity {
             }
         }
     }
+     //Display image from a path to ImageView
 
-    /**
-     * Display image from a path to ImageView
-     */
     private void previewCapturedImage() {
         try {
 
@@ -215,7 +211,6 @@ public class MainActivity extends Activity {
             return null;
         }
     }
-
     //returning image
     private static File getOutputMediaFile(int type) {
 
