@@ -117,11 +117,6 @@ public class MainActivity extends Activity {
        // Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
 
     }
-
-    /**
-     * Here we store the file url as it will be null after returning from camera
-     * app
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -188,8 +183,6 @@ public class MainActivity extends Activity {
                         .show();
             }
         }
-
-
     }
 
     /**
@@ -253,7 +246,6 @@ public class MainActivity extends Activity {
         } else {
             return null;
         }
-
         return mediaFile;
     }
 }
